@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* App global tweaks */
+:root {
+	--brand: #410445;
+}
+
+html:focus-within {
+	scroll-behavior: smooth;
+}
+
+body {
+	@apply text-gray-800;
+}
+
+.container-responsive {
+	@apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+}
+
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
