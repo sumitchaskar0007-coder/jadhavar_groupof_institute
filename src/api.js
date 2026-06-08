@@ -58,15 +58,16 @@
   // =============================
 
   // Get all gallery items (public) - FIXED to handle pagination
-  export const getGalleryImages = async (page = 1, limit = 100) => {
-    try {
-      const response = await api.get(`/gallery?page=${page}&limit=${limit}`);
-      return response;
-    } catch (error) {
-      console.error('Error fetching gallery images:', error);
-      throw error;
-    }
-  };
+  // Get all gallery items (public) - NO LIMIT
+export const getGalleryImages = async () => {
+  try {
+    const response = await api.get('/gallery');
+    return response;
+  } catch (error) {
+    console.error('Error fetching gallery images:', error);
+    throw error;
+  }
+};
 
   // Get single gallery item by ID
   export const getGalleryImageById = (id) => api.get(`/gallery/${id}`);

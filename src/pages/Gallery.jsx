@@ -1,3 +1,4 @@
+// frontend/src/pages/Gallery.jsx (Updated for unlimited items)
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { getGalleryImages } from '../api';
@@ -10,47 +11,31 @@ const Gallery = () => {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [mediaType, setMediaType] = useState('all');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
 
   useEffect(() => {
     fetchItems();
-  }, [currentPage]);
+  }, []);
 
   const fetchItems = async () => {
     try {
       setLoading(true);
-      // Fetch with larger limit to show more items
-      const response = await getGalleryImages(currentPage, 100);
+      const response = await getGalleryImages();
       
       let galleryItems = [];
-      let total = 0;
-      let pages = 1;
       
       if (response && response.data) {
-        // Handle paginated response structure
+        // Handle response structure
         if (response.data.items && Array.isArray(response.data.items)) {
           galleryItems = response.data.items;
-          total = response.data.total || galleryItems.length;
-          pages = response.data.totalPages || Math.ceil(total / 100);
         }
-        // Handle array response
         else if (Array.isArray(response.data)) {
           galleryItems = response.data;
-          total = galleryItems.length;
-          pages = 1;
         }
-        // Handle other possible response structures
         else if (response.data.data && Array.isArray(response.data.data)) {
           galleryItems = response.data.data;
-          total = response.data.total || galleryItems.length;
-          pages = response.data.totalPages || 1;
         }
         else {
           galleryItems = [];
-          total = 0;
-          pages = 1;
         }
       }
       
@@ -63,8 +48,6 @@ const Gallery = () => {
       }));
       
       setItems(normalizedItems);
-      setTotalItems(total);
-      setTotalPages(pages);
       
       // Extract unique categories
       if (normalizedItems.length > 0) {
@@ -79,14 +62,12 @@ const Gallery = () => {
       toast.error('Failed to load gallery items. Please try again later.');
       setItems([]);
       setCategories(['all']);
-      setTotalItems(0);
-      setTotalPages(1);
     } finally {
       setLoading(false);
     }
   };
 
-  // Safely filter items
+  // Filter items based on category and media type
   const filteredItems = Array.isArray(items) ? items.filter(item => {
     const categoryMatch = selectedCategory === 'all' || item.category === selectedCategory;
     const typeMatch = mediaType === 'all' || item.mediaType === mediaType;
@@ -358,7 +339,7 @@ const Gallery = () => {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Gallery</h1>
           <p className="text-xl text-gray-600">Explore our campus life, events, and videos</p>
-          <p className="text-sm text-gray-500 mt-2">Total Items: {totalItems}</p>
+          <p className="text-sm text-gray-500 mt-2">Total Items: {items.length}</p>
         </div>
 
         {/* Filters */}
@@ -424,7 +405,7 @@ const Gallery = () => {
           </div>
         )}
 
-        {/* Items Grid */}
+        {/* Items Grid - Shows ALL filtered items */}
         {filteredItems.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg shadow-md">
             <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -438,38 +419,13 @@ const Gallery = () => {
             </p>
           </div>
         ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredItems.map((item, index) => (
-                <div key={item._id || index} className="transform transition-transform duration-300 hover:scale-105">
-                  {renderMediaCard(item)}
-                </div>
-              ))}
-            </div>
-            
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-              <div className="flex justify-center items-center space-x-2 mt-8">
-                <button
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                  className="px-3 py-1 bg-gray-300 text-gray-700 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-400"
-                >
-                  Previous
-                </button>
-                <span className="px-4 py-2 bg-indigo-600 text-white rounded-md">
-                  Page {currentPage} of {totalPages}
-                </span>
-                <button
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                  className="px-3 py-1 bg-gray-300 text-gray-700 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-400"
-                >
-                  Next
-                </button>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredItems.map((item, index) => (
+              <div key={item._id || index} className="transform transition-transform duration-300 hover:scale-105">
+                {renderMediaCard(item)}
               </div>
-            )}
-          </>
+            ))}
+          </div>
         )}
 
         {/* Lightbox/Video Modal */}
