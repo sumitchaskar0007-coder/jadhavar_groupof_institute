@@ -1,6 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://www.jadhavar-law.edu.in/sitemap.xml
-
-
